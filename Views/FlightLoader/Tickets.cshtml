@@ -1,0 +1,85 @@
+﻿@model IEnumerable<AirlineWeb.Shared.Models.TicketingBWA>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Tickets";
+}
+
+<p>
+    Tickets
+</p>
+@if (Model != null && Model.Any())
+{
+<table class="table">
+    <tbody>
+        @foreach (var ticketing in Model)
+        {
+
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => ticketing.Reservation.PNR)
+                </td>
+                <td>
+                    # PAX: @ticketing.Reservation.Passengers.Count()
+                </td>
+                <td>
+                    Updated: @Html.DisplayFor(modelItem => ticketing.LastUpdated)
+                </td>
+                <td colspan="3">
+                    @if (ticketing.HasUsableCoupons())
+                    {
+                        <a asp-action="ExchangeTicket" asp-route-id="@ticketing.Id" class="btn btn-primary">Exchange</a><span>&nbsp;</span>
+                        <a asp-action="RefundTickets" asp-route-id="@ticketing.Id" class="btn btn-primary">Refund All</a><span>&nbsp;</span>
+                        <a asp-action="VoidTickets" asp-route-id="@ticketing.Id" class="btn btn-primary">Void All</a>
+                    }
+                </td>
+            </tr>
+        
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => Model.First().Tickets.First().Code)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => Model.First().Tickets.First().Number)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => Model.First().Tickets.First().Indicator)
+                </th>
+                <th>
+                </th>
+                <th>
+                </th>
+                <th></th>
+            </tr>
+        
+        @foreach (var ticket in ticketing.Tickets)
+        {
+
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => ticket.Code)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => ticket.Number)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => ticket.Indicator)
+                </td>
+                <td colspan="3">
+                    @if (ticket.HasUsableCoupons())
+                    {
+                        <a asp-action="VoidTicket" asp-route-id="@ticket.Id" class="btn btn-primary">Void</a><span>&nbsp;</span>
+                        <a asp-action="RefundTicket" asp-route-id="@ticket.Id" class="btn btn-primary">Refund</a>
+                    }
+                    else
+                    {
+                        @ticket.GetTransactionType(ticketing);
+                    }
+                </td>
+            </tr>
+        }
+    }
+        </tbody>
+    </table>
+}

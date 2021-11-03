@@ -1,0 +1,92 @@
+﻿@model AirlineAdmin.Controllers.FlightLoader
+
+@{
+    ViewData["Title"] = "Index";
+    var currentModel = (AirlineAdmin.Controllers.FlightLoader)Model;
+    var currentFlight = ((AirlineAdmin.Controllers.FlightLoader)Model).Flights.FirstOrDefault();
+}
+
+
+<p>
+    Select A Flight for @Html.Raw(currentModel.curentDate.Value.ToShortDateString())
+</p>
+<div>
+    <a asp-action="Index"
+       asp-route-currentDate="@(currentModel.previousDate)">
+        Previous
+    </a>
+    &nbsp;&nbsp;&nbsp;
+    <a asp-action="Index"
+       asp-route-currentDate="@(currentModel.nextDate)">
+        Next
+    </a>
+</div>
+
+@if (currentFlight != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => currentFlight.FlightDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => currentFlight.DepartureTime)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => currentFlight.ArrivalTime)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => currentFlight.FlightNumber)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => currentFlight.Origin)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => currentFlight.Destination)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => currentFlight.Carrier)
+                </th>
+                
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in currentModel.Flights)
+            {
+            <tr>
+
+                <td>
+                    @item.FlightDate.ToShortDateString()
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DepartureTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ArrivalTime)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.FlightNumber)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Origin)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Destination)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Carrier)
+                </td>
+
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" asp-route-flighton="@currentModel.curentDate.Value.Date" class="btn btn-primary">Select Flight</a>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+

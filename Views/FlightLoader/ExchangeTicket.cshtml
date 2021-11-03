@@ -1,0 +1,58 @@
+﻿
+@model IList<AirlineWeb.Shared.Models.ReservedSegmentBWA>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Exchange Ticket";
+}
+
+
+<h5>Select Segment you would like to exchange.</h5>
+<br />
+<br />
+
+
+<div class="col-12 row">
+    <div class="col-2"></div>
+    <div class="col-3">Date</div>
+    <div class="col-2">Origin</div>
+    <div class="col-3">Destination</div>
+    <div class="col-2">Flight#</div>
+</div>
+<br />
+<form asp-action="ExchangeFlightSearch">
+    @if (Model != null && Model.Any())
+    {
+        @for (var i = 0; i < Model.Count; i++)
+        {
+            @Html.HiddenFor(m => m[i].Id)
+            <div class="col-12 row">
+                <div class="col-2">@Html.CheckBoxFor(m => m[i].MarkedForExchangeNotNull)</div>
+                <div class="col-3">@Model[i].FlightDate.ToShortDateString()</div>
+                <div class="col-2">@Html.DisplayFor(m => m[i].Origin)</div>
+                <div class="col-3">@Html.DisplayFor(m => m[i].Destination)</div>
+                <div class="col-2">@Html.DisplayFor(m => m[i].FlightNumber)</div>
+            </div>
+            <br />
+        }
+        <div class="form-group">
+            <input type="submit" value="Next" id="checkExchangeSegment" class="btn btn-primary" />
+        </div>
+    }
+    <br />
+
+</form>
+<div>
+    <a asp-action="Tickets" class="btn btn-primary">Back to List</a>
+</div>
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#checkExchangeSegment').prop("disabled", true);
+            $('input[id$=MarkedForExchangeNotNull]').on("change", function setInventoryLinkDetail() {
+                $('#checkExchangeSegment').prop("disabled", false);
+            });
+        });
+    </script>
+}

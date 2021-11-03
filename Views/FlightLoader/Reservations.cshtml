@@ -1,0 +1,59 @@
+﻿@model IEnumerable<AirlineWeb.Shared.Models.ReservationBWA>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Reservations";
+}
+
+<p>
+    Reservations
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.BookingDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PNR)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ExpirationTime)
+            </th>
+            <th>
+                
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BookingDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PNR)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ExpirationTime)
+                </td>
+                <td colspan="2">
+
+                    @if (!item.Ticketed)
+                    {
+                        <a asp-action="IssueTickets" asp-route-id="@item.Id" class="btn btn-primary">Issue TKT</a> <span>&nbsp;</span>
+                        <a asp-action="CancelReservation" asp-route-id="@item.Id" class="btn btn-primary">Cancel RES</a><span>&nbsp;</span>
+                    }
+                    @if (item.Passengers.Count() > 1)
+                    {
+                        <a asp-action="SplitPassenger" asp-route-id="@item.Id" class="btn btn-primary">Split PAX</a>
+                    }
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

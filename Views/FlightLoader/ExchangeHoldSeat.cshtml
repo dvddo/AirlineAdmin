@@ -1,0 +1,175 @@
+﻿@using AirlineWeb.Shared.Models;
+@using System.Text.Json;
+
+@model AirlineWeb.Shared.Models.FlightSearchBWA
+
+@{
+    ViewData["Title"] = "Exchange Hold Seat";
+    //string search = (string)TempData["FlightSearch"];
+    //var flightSearch = JsonSerializer.Deserialize<FlightSearchBWA>(search);
+}
+
+<form asp-action="VerifyExchange">
+    <div>
+        <h4>Exchange Hold Seat</h4>
+        <hr />
+        <dl class="row">
+            @Html.HiddenFor(model => model.Id)
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Origin)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Origin)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Destination)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Destination)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.FlightDate)
+            </dt>
+            <dd class="col-sm-10">
+                @Model.FlightDate.ToShortDateString()
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.RoundTrip)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.RoundTrip)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.RouteStatus)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.RouteStatus)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.AdultCount)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.AdultCount)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.SearchStatus)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.SearchStatus.Name)
+            </dd>
+        </dl>
+
+        <h5>Flight Search Details</h5>
+        <hr />
+        @foreach (FlightSearchDetailBWA detail in Model.SearchDetails)
+        {
+            <dl class="row">
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => detail.Origin)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => detail.Origin)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => detail.Destination)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => detail.Destination)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => detail.FlightDate)
+                </dt>
+                <dd class="col-sm-10">
+                    @detail.FlightDate.ToShortDateString()
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => detail.SearchStatus)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => detail.SearchStatus.Name)
+                </dd>
+            </dl>
+            <div>
+                &nbsp;
+            </div>
+            foreach (var inv in detail.Flight.InventoryLinks)
+            {
+                <select id="invl_@inv.Id" name="@inv.Id">
+                    <option value="" selected>Select Booking Code</option>
+                    @foreach (var ild in inv.InventoryLinkDetails)
+                    {
+                        <option value="@ild.Id">@string.Format("Booking:{0}-{1} has {2} Seat(s) Avialable", ild.BookingClass, ild.BookingCode, ild.AvailableSeat)</option>
+                    }
+                </select>
+
+            }
+        }
+
+    </div>
+
+    <div>
+        &nbsp;
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Next" class="btn btn-primary" id="checkInventoryLink" />
+    </div>
+</form>
+
+<div>
+    &nbsp;
+</div>
+<div>
+    <a asp-action="Index" class="btn btn-primary">Back to List</a>
+</div>
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#checkInventoryLink').prop("disabled", true);
+            $('[id^=invl_]').on("change", function setInventoryLinkDetail() {
+                var elem = $(this);
+                if ($('[id^=invl_]').val()) {
+                    $.ajax({
+                        url: "/FlightLoader/SaveExchangeInventoryLinkDetail",
+                        type: "GET",
+                        data: { Id: elem.val(), IVId: elem.attr('name'), FSId: $('input[id=Id]').val() },
+                        traditional: true,
+                        success: function (newresult) {
+                            console.log(newresult);
+                            var sessionkey = $('input[id=ClientSessionKey]').val();
+                            sessionkey += elem.val();
+                            $('input[id=ClientSessionKey]').val(sessionkey);
+                            $('#checkInventoryLink').prop("disabled", false);
+                        },
+                        error: function () {
+                            alert("Something went wrong");
+                        }
+                    });
+                }
+                else {
+                    $.ajax({
+                        url: "/FlightLoader/RemoveExchangeInventoryLinkDetail",
+                        type: "GET",
+                        data: { Id: elem.attr('name'), FSId: $('input[id=Id]').val() },
+                        traditional: true,
+                        success: function (newresult) {
+                            console.log(newresult);
+                            var sessionkey = $('input[id=ClientSessionKey]').val();
+                            var selectOptions = '#' + elem.attr('id') + ' option';
+                            $(selectOptions).each(function () {
+                                sessionkey = sessionkey.replace($(this).val(), "");
+                            });
+                            $('input[id=ClientSessionKey]').val(sessionkey);
+                            if (sessionkey == '') {
+                                console.log('disable link')
+                                $('#checkInventoryLink').prop("disabled", true);
+                            }
+                        },
+                        error: function () {
+                            alert("Something went wrong");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,68 @@
+﻿@model AirlineWeb.Shared.Models.ReservationBWA
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Exchange Hold Seat";
+}
+
+<div class="col-12 row"><h5>Please verify Exchange detail below.</h5></div>
+<br />
+<br />
+<form asp-action="ProcessExchange">
+    @if (Model.Segments != null && Model.Segments.Any())
+    {
+        <div class="col-12 row"><h5>Exchange From:</h5></div>
+        <br />
+        <div class="col-12 row">
+            <div class="col-2">Date</div>
+            <div class="col-2">Origin</div>
+            <div class="col-2">Destination</div>
+            <div class="col-2">Flight#</div>
+        </div>
+        <br />
+        foreach (var seg in Model.Segments.Where(seg => seg.MarkedForExchange == true))
+        {
+            <div class="col-12 row">
+                <div class="col-2">@seg.FlightDate.ToShortDateString()</div>
+                <div class="col-2">@seg.Origin</div>
+                <div class="col-2">@seg.Destination</div>
+                <div class="col-2">@seg.FlightNumber</div>
+            </div>
+            <br />
+        }
+
+    }
+    <br />
+    @if (Model.ExchangeFlightSearch.SearchDetails != null && Model.ExchangeFlightSearch.SearchDetails.Any())
+    {
+        <div class="col-12 row"><h5>Exchange To:</h5></div>
+        <br />
+        <div class="col-12 row">
+            <div class="col-2">Date</div>
+            <div class="col-2">Origin</div>
+            <div class="col-2">Destination</div>
+            <div class="col-2">Flight#</div>
+            <div class="col-2">Booking</div>
+        </div>
+        <br />
+        foreach (var sdt in Model.ExchangeFlightSearch.SearchDetails)
+        {
+            <div class="col-12 row">
+                <div class="col-2">@sdt.FlightDate.ToShortDateString()</div>
+                <div class="col-2">@sdt.Origin</div>
+                <div class="col-2">@sdt.Destination</div>
+                <div class="col-2">@sdt.FlightNumber</div>
+                <div class="col-2">@string.Format("{0}-{1}", sdt.BookingClass, sdt.BookingCode)</div>
+            </div>
+            <br />
+        }
+
+    }
+    <div class="form-group">
+        <input type="submit" value="Exchange" class="btn btn-primary" />
+    </div>
+</form>
+<div>
+    <a asp-action="Tickets" class="btn btn-primary">Back to List</a>
+</div>
